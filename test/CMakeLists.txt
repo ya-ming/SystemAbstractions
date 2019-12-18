@@ -5,6 +5,7 @@ set(This SystemAbstractionsTests)
 
 set(Sources
 	src/StringExtensionsTests.cpp
+    src/StringFileTests.cpp
 )
 
 add_executable(${This} ${Sources})
