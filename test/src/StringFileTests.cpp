@@ -186,3 +186,32 @@ TEST(StringFileTests, Clone) {
     ASSERT_EQ(testString.length(), clone->Read(buffer));
     ASSERT_EQ(testString, std::string(buffer.begin(), buffer.end()));
 }
+
+TEST(StringFileTests, WriteBeyondEndAndIntoMiddle) {
+    SystemAbstractions::StringFile sf;
+    const std::string testString = "Hello, World!\r\n";
+    (void)sf.Write(testString.data(), 5); // sf has "Hello"
+    sf.SetPosition(7);
+
+    (void)sf.Write(testString.data() + 7, 8); // sf has "Hello\0\0World!\r\n"
+    ASSERT_EQ(testString.length(), sf.GetSize());
+
+    SystemAbstractions::IFile::Buffer buffer(testString.length());
+    sf.SetPosition(0);
+    ASSERT_EQ(testString.length(), sf.Read(buffer));
+    ASSERT_EQ(
+        (std::vector<uint8_t> {'H', 'e', 'l', 'l', 'o', 0, 0, 'W', 'o', 'r', 'l', 'd', '!', '\r', '\n'}),
+        buffer
+    );
+
+    sf.SetPosition(5);
+    (void)sf.Write(testString.data() + 5, 2);
+    ASSERT_EQ(testString.length(), sf.GetSize());
+    sf.SetPosition(0);
+    ASSERT_EQ(testString.length(), sf.Read(buffer));
+    ASSERT_EQ(
+        (std::vector<uint8_t> {'H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\r', '\n'}),
+        buffer
+    );
+
+}
