@@ -140,7 +140,7 @@ TEST_F(FileTests, BasicFileMethod) {
         SystemAbstractions::File::ListDirectory(testAreaPath, list);
         std::set<std::string> set(list.begin(), list.end());
         for (const std::string& expectedElement : { "foo.txt", "foo.txt2" }) {
-            const auto element = set.find(testAreaPath + "\\" + expectedElement);
+            const auto element = set.find(testAreaPath + "/" + expectedElement);
             ASSERT_FALSE(element == set.end()) << expectedElement;
             (void)set.erase(element);
         }
