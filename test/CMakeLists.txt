@@ -5,7 +5,8 @@ set(This SystemAbstractionsTests)
 
 set(Sources
     src/DirectoryMonitorTests.cpp
-	src/StringExtensionsTests.cpp
+    src/FileTests.cpp
+    src/StringExtensionsTests.cpp
     src/StringFileTests.cpp
 )
 
