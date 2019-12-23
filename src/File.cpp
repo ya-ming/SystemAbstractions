@@ -4,15 +4,16 @@
  * This module contains the platform-independent part of the
  * implementation of the SystemAbstractions::File class.
  *
- * Copyright (c) 2013-2016 by Richard Walters
+ * Copyright (c) 2013-2019 by Richard Walters
  */
 
+#include "FileImpl.hpp"
 #include <SystemAbstractions/File.hpp>
 
 namespace SystemAbstractions {
 
     std::string File::GetPath() const {
-        return _path;
+        return impl_->path;
     }
 
     size_t File::Peek(Buffer& buffer, size_t numBytes, size_t offset) const {

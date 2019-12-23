@@ -6,7 +6,7 @@
  *
  * This module declares the SystemAbstractions::StringFile class.
  *
- * Copyright (c) 2013-2016 by Richard Walters
+ * Copyright (c) 2013-2019 by Richard Walters
  */
 
 #include "IFile.hpp"
