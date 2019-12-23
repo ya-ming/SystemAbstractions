@@ -199,3 +199,14 @@ TEST_F(FileTests, DirectoryTests) {
     ASSERT_FALSE(sub2.IsExisting());
     ASSERT_FALSE(file4.IsExisting());
 }
+
+TEST_F(FileTests, RepurposeFileObject) {
+    const std::string testFilePath1 = testAreaPath + "/foo.txt";
+    const std::string testFilePath2 = testAreaPath + "/bar.txt";
+    SystemAbstractions::File file(testFilePath1);
+
+    // Implicitly cast testFilePath2 to a SystemAbstractions::File,
+    // and then move-assign it to the file instance.
+    file = testFilePath2;
+    ASSERT_EQ(testFilePath2, file.GetPath());
+}
