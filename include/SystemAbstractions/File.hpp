@@ -266,21 +266,19 @@ namespace SystemAbstractions {
         virtual std::shared_ptr< IFile > Clone() override;
 
         // Private methods
-    private:
-        static bool CreatePath(std::string path);
 
         // Private properties
     private:
         /**
          * This is the type of structure that contains the private
-         * properties of the instance.  It is defined in the implementation
+         * properties of the instance. It is defined in the implementation
          * and declared here to ensure that it is scoped inside the class.
          */
         struct Impl;
 
         /**
          * This is the type of structure that contains the platform-specific
-         * private properties of the instance.  It is defined in the
+         * private properties of the instance. It is defined in the
          * platform-specific part of the implementation and declared here to
          * ensure that it is scoped inside the class.
          */

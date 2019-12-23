@@ -34,6 +34,16 @@ namespace SystemAbstractions {
         // Methods
 
         Impl();
+
+        /**
+         * This is a helper function which creates all the directories
+         * in the given path that don't already exist.
+         *
+         * @param[in] path
+         *     This is the path for which to ensure all the directories
+         *     in it are created if they don't already exist.
+         */
+        static bool CreatePath(std::string path);
     };
 }
 

@@ -52,7 +52,7 @@ namespace SystemAbstractions {
         ) {
             directoryWithSeparator += '/';
         }
-        return File::CreatePath(directoryWithSeparator);
+        return File::Impl::CreatePath(directoryWithSeparator);
     }
 
 }
