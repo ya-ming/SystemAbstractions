@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.8)
 set(This SystemAbstractionsTests)
 
 set(Sources
+    src/DiagnosticsSenderTests.cpp
     src/DirectoryMonitorTests.cpp
     src/FileTests.cpp
     src/StringExtensionsTests.cpp
