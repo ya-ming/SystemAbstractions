@@ -81,7 +81,7 @@ struct ReceivedMessage {
 
 };
 
-TEST(DiagnosticsContextTests, Placeholder) {
+TEST(DiagnosticsContextTests, PushAndPopContext) {
     SystemAbstractions::DiagnosticsSender sender("foo");
     std::vector<ReceivedMessage> receivedMessages;
 

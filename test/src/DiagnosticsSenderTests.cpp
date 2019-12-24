@@ -10,6 +10,7 @@
 #include <gtest/gtest.h>
 #include <SystemAbstractions/DiagnosticsSender.hpp>
 #include <vector>
+#include <string>
 
  /**
   * This is used to store a message received
