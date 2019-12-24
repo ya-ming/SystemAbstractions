@@ -7,15 +7,15 @@
  * Copyright (c) 2016 by Richard Walters
  */
 
-/**
- * WinSock2.h should always be included first because if Windows.h is
- * included before it, WinSock.h gets included which conflicts
- * with WinSock2.h.
- *
- * Windows.h should always be included next because other Windows header
- * files, such as KnownFolders.h, don't always define things properly if
- * you don't include Windows.h beforehand.
- */
+ /**
+  * WinSock2.h should always be included first because if Windows.h is
+  * included before it, WinSock.h gets included which conflicts
+  * with WinSock2.h.
+  *
+  * Windows.h should always be included next because other Windows header
+  * files, such as KnownFolders.h, don't always define things properly if
+  * you don't include Windows.h beforehand.
+  */
 #include <WinSock2.h>
 #include <Windows.h>
 #include <WS2tcpip.h>
@@ -75,7 +75,7 @@ namespace SystemAbstractions {
         platform->sock = socket(socketAddress.sin_family, SOCK_STREAM, 0);
         if (platform->sock == INVALID_SOCKET) {
             diagnosticsSender.SendDiagnosticInformationFormatted(
-                SystemAbstractions::DiagnosticsReceiver::Levels::ERROR,
+                SystemAbstractions::DiagnosticsSender::Levels::ERROR,
                 "error creating socket (%d)",
                 WSAGetLastError()
             );
@@ -83,7 +83,7 @@ namespace SystemAbstractions {
         }
         if (bind(platform->sock, (struct sockaddr*)&socketAddress, sizeof(socketAddress)) != 0) {
             diagnosticsSender.SendDiagnosticInformationFormatted(
-                SystemAbstractions::DiagnosticsReceiver::Levels::ERROR,
+                SystemAbstractions::DiagnosticsSender::Levels::ERROR,
                 "error in bind (%d)",
                 WSAGetLastError()
             );
@@ -96,7 +96,7 @@ namespace SystemAbstractions {
         socketAddress.sin_port = htons(peerPort);
         if (connect(platform->sock, (const sockaddr*)&socketAddress, sizeof(socketAddress)) != 0) {
             diagnosticsSender.SendDiagnosticInformationFormatted(
-                SystemAbstractions::DiagnosticsReceiver::Levels::ERROR,
+                SystemAbstractions::DiagnosticsSender::Levels::ERROR,
                 "error in connect (%d)",
                 WSAGetLastError()
             );
@@ -109,14 +109,14 @@ namespace SystemAbstractions {
     bool NetworkConnectionImpl::Process() {
         if (platform->sock == INVALID_SOCKET) {
             diagnosticsSender.SendDiagnosticInformationString(
-                SystemAbstractions::DiagnosticsReceiver::Levels::ERROR,
+                SystemAbstractions::DiagnosticsSender::Levels::ERROR,
                 "not connected"
             );
             return false;
         }
         if (platform->processor.joinable()) {
             diagnosticsSender.SendDiagnosticInformationString(
-                SystemAbstractions::DiagnosticsReceiver::Levels::WARNING,
+                SystemAbstractions::DiagnosticsSender::Levels::WARNING,
                 "already processing"
             );
             return true;
@@ -126,7 +126,7 @@ namespace SystemAbstractions {
             platform->processorStateChangeEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
             if (platform->processorStateChangeEvent == NULL) {
                 diagnosticsSender.SendDiagnosticInformationFormatted(
-                    SystemAbstractions::DiagnosticsReceiver::Levels::ERROR,
+                    SystemAbstractions::DiagnosticsSender::Levels::ERROR,
                     "error creating processor state change event (%d)",
                     (int)GetLastError()
                 );
@@ -137,7 +137,7 @@ namespace SystemAbstractions {
             platform->socketEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
             if (platform->socketEvent == NULL) {
                 diagnosticsSender.SendDiagnosticInformationFormatted(
-                    SystemAbstractions::DiagnosticsReceiver::Levels::ERROR,
+                    SystemAbstractions::DiagnosticsSender::Levels::ERROR,
                     "error creating socket event (%d)",
                     (int)GetLastError()
                 );
@@ -146,7 +146,7 @@ namespace SystemAbstractions {
         }
         if (WSAEventSelect(platform->sock, platform->socketEvent, FD_READ | FD_WRITE | FD_CLOSE) != 0) {
             diagnosticsSender.SendDiagnosticInformationFormatted(
-                SystemAbstractions::DiagnosticsReceiver::Levels::ERROR,
+                SystemAbstractions::DiagnosticsSender::Levels::ERROR,
                 "error in WSAEventSelect for FD_READ (%d)",
                 WSAGetLastError()
             );
@@ -173,16 +173,19 @@ namespace SystemAbstractions {
                 const auto wsaLastError = WSAGetLastError();
                 if (wsaLastError == WSAEWOULDBLOCK) {
                     wait = true;
-                } else {
+                }
+                else {
                     Close(false);
                     owner->NetworkConnectionBroken();
                     break;
                 }
-            } else if (amountReceived > 0) {
+            }
+            else if (amountReceived > 0) {
                 wait = false;
                 buffer.resize((size_t)amountReceived);
                 owner->NetworkConnectionMessageReceived(buffer);
-            } else {
+            }
+            else {
                 Close(false);
                 owner->NetworkConnectionBroken();
                 break;
@@ -202,15 +205,17 @@ namespace SystemAbstractions {
                         owner->NetworkConnectionBroken();
                         break;
                     }
-                } else if (amountSent > 0) {
+                }
+                else if (amountSent > 0) {
                     (void)platform->outputQueue.erase(platform->outputQueue.begin(), platform->outputQueue.begin() + amountSent);
                     if (
                         (amountSent == writeSize)
                         && !platform->outputQueue.empty()
-                    ) {
+                        ) {
                         wait = false;
                     }
-                } else {
+                }
+                else {
                     Close(false);
                     owner->NetworkConnectionBroken();
                     break;
@@ -233,7 +238,7 @@ namespace SystemAbstractions {
         if (
             stopProcessing
             && platform->processor.joinable()
-        ) {
+            ) {
             platform->processorStop = true;
             (void)SetEvent(platform->processorStateChangeEvent);
             platform->processor.join();
