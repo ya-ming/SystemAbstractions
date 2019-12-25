@@ -282,7 +282,7 @@ namespace SystemAbstractions {
                     connectionImpl->platform->sock = client;
                     connectionImpl->peerAddress = ntohl(socketAddress.sin_addr.S_un.S_addr);
                     connectionImpl->peerPort = ntohs(socketAddress.sin_port);
-                    owner->NetworkEndpointNewConnection(std::make_shared< NetworkConnection >(connectionImpl));
+                    newConnectionDelegate(std::make_shared< NetworkConnection >(connectionImpl));
                 }
             }
             else if (
@@ -311,7 +311,7 @@ namespace SystemAbstractions {
                 }
                 else if (amountReceived > 0) {
                     buffer.resize(amountReceived);
-                    owner->NetworkEndpointPacketReceived(
+                    packetReceivedDelegate(
                         ntohl(socketAddress.sin_addr.S_un.S_addr),
                         ntohs(socketAddress.sin_port),
                         buffer

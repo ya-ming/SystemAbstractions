@@ -76,8 +76,7 @@ struct Packet {
  * This is used to receive callbacks from the unit under test.
  */
 struct Owner
-    :public SystemAbstractions::NetworkEndpoint::Owner,
-    public SystemAbstractions::NetworkConnection::Owner
+    :public SystemAbstractions::NetworkConnection::Owner
 {
     // Properties
 
@@ -222,19 +221,38 @@ struct Owner
         );
     }
 
-    // SystemAbstractions::NetworkEndpoint::Owner
-public:
-    virtual void NetworkEndpointNewConnection(std::shared_ptr<SystemAbstractions::NetworkConnection> newConnection) override {
+    /**
+     * This is the callback function to be called whenever
+     * a new client connects to the network endpoint.
+     *
+     * @param[in] newConnection
+     *     This represents the connection to the new client.
+     */
+    void NetworkEndpointNewConnection(std::shared_ptr<SystemAbstractions::NetworkConnection> newConnection) {
         std::unique_lock<decltype(mutex)> lock(mutex);
         connections.push_back(newConnection);
         condition.notify_all();
         (void)newConnection->Process(this);
     }
-    virtual void NetworkEndpointPacketReceived(
+
+    /**
+     * This is the type of callback function to be called whenever
+     * a new datagram-oriented message is received by the network endpoint.
+     *
+     * @param[in] address
+     *     This is the IPv4 address of the client who sent the message.
+     *
+     * @param[in] port
+     *     This is the port number of the client who sent the message.
+     *
+     * @param[in] body
+     *     This is the contents of the datagram sent by the client.
+     */
+    void NetworkEndpointPacketReceived(
         uint32_t address,
         uint16_t port,
         const std::vector<uint8_t>& body
-    ) override {
+    ) {
         std::unique_lock<decltype(mutex)> lock(mutex);
         packetsReceived.emplace_back(body, address, port);
         condition.notify_all();
@@ -317,7 +335,14 @@ TEST_F(NetworkEndpointTests, DatagramSending) {
     SystemAbstractions::NetworkEndpoint endpoint;
     Owner owner;
     endpoint.Open(
-        &owner,
+        [&owner](
+            std::shared_ptr<SystemAbstractions::NetworkConnection> newConnection) {
+        owner.NetworkEndpointNewConnection(newConnection);
+    },
+        [&owner](
+            uint32_t address, uint16_t port, const std::vector<uint8_t>& body) {
+        owner.NetworkEndpointPacketReceived(address, port, body);
+    },
         SystemAbstractions::NetworkEndpoint::Mode::Datagram,
         0,
         0,
@@ -373,7 +398,14 @@ TEST_F(NetworkEndpointTests, DatagramReceiving) {
     SystemAbstractions::NetworkEndpoint endpoint;
     Owner owner;
     endpoint.Open(
-        &owner,
+        [&owner](
+            std::shared_ptr<SystemAbstractions::NetworkConnection> newConnection) {
+        owner.NetworkEndpointNewConnection(newConnection);
+    },
+        [&owner](
+            uint32_t address, uint16_t port, const std::vector<uint8_t>& body) {
+        owner.NetworkEndpointPacketReceived(address, port, body);
+    },
         SystemAbstractions::NetworkEndpoint::Mode::Datagram,
         0,
         0,
@@ -429,7 +461,14 @@ TEST_F(NetworkEndpointTests, ConnectionSending) {
     SystemAbstractions::NetworkEndpoint endpoint;
     Owner owner;
     endpoint.Open(
-        &owner,
+        [&owner](
+            std::shared_ptr<SystemAbstractions::NetworkConnection> newConnection) {
+        owner.NetworkEndpointNewConnection(newConnection);
+    },
+        [&owner](
+            uint32_t address, uint16_t port, const std::vector<uint8_t>& body) {
+        owner.NetworkEndpointPacketReceived(address, port, body);
+    },
         SystemAbstractions::NetworkEndpoint::Mode::Connection,
         0,
         0,
@@ -491,7 +530,14 @@ TEST_F(NetworkEndpointTests, ConnectionReceiving) {
     SystemAbstractions::NetworkEndpoint endpoint;
     Owner owner;
     endpoint.Open(
-        &owner,
+        [&owner](
+            std::shared_ptr<SystemAbstractions::NetworkConnection> newConnection) {
+        owner.NetworkEndpointNewConnection(newConnection);
+    },
+        [&owner](
+            uint32_t address, uint16_t port, const std::vector<uint8_t>& body) {
+        owner.NetworkEndpointPacketReceived(address, port, body);
+    },
         SystemAbstractions::NetworkEndpoint::Mode::Connection,
         0,
         0,
@@ -551,7 +597,14 @@ TEST_F(NetworkEndpointTests, ConnectionBroken) {
     SystemAbstractions::NetworkEndpoint endpoint;
     Owner owner;
     endpoint.Open(
-        &owner,
+        [&owner](
+            std::shared_ptr<SystemAbstractions::NetworkConnection> newConnection) {
+        owner.NetworkEndpointNewConnection(newConnection);
+    },
+        [&owner](
+            uint32_t address, uint16_t port, const std::vector<uint8_t>& body) {
+        owner.NetworkEndpointPacketReceived(address, port, body);
+    },
         SystemAbstractions::NetworkEndpoint::Mode::Connection,
         0,
         0,
@@ -614,7 +667,14 @@ TEST_F(NetworkEndpointTests, MultipleConnections) {
     SystemAbstractions::NetworkEndpoint endpoint;
     Owner owner;
     endpoint.Open(
-        &owner,
+        [&owner](
+            std::shared_ptr<SystemAbstractions::NetworkConnection> newConnection) {
+        owner.NetworkEndpointNewConnection(newConnection);
+    },
+        [&owner](
+            uint32_t address, uint16_t port, const std::vector<uint8_t>& body) {
+        owner.NetworkEndpointPacketReceived(address, port, body);
+    },
         SystemAbstractions::NetworkEndpoint::Mode::Connection,
         0,
         0,
