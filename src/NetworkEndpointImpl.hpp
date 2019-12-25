@@ -10,8 +10,8 @@
  * Copyright (c) 2016 by Richard Walters
  */
 
-#include "DiagnosticsSender.hpp"
-#include "NetworkEndpoint.hpp"
+#include "SystemAbstractions/DiagnosticsSender.hpp"
+#include "SystemAbstractions/NetworkEndpoint.hpp"
 
 #include <memory>
 #include <stdint.h>

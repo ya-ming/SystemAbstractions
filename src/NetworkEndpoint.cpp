@@ -8,7 +8,7 @@
  */
 
 #include <SystemAbstractions/NetworkEndpoint.hpp>
-#include <SystemAbstractions/NetworkEndpointImpl.hpp>
+#include "NetworkEndpointImpl.hpp"
 
 #include <assert.h>
 #include <inttypes.h>

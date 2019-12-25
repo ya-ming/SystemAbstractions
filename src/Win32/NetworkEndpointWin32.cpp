@@ -29,7 +29,7 @@
 
 #include <SystemAbstractions/NetworkConnection.hpp>
 #include <SystemAbstractions/NetworkConnectionImpl.hpp>
-#include <SystemAbstractions/NetworkEndpointImpl.hpp>
+#include "../NetworkEndpointImpl.hpp"
 #include "NetworkConnectionWin32.hpp"
 #include "NetworkEndpointWin32.hpp"
 
