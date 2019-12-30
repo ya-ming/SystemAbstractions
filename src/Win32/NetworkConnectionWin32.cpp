@@ -185,18 +185,18 @@ namespace SystemAbstractions {
                 }
                 else {
                     Close(false);
-                    owner->NetworkConnectionBroken();
+                    brokenDelegate();
                     break;
                 }
             }
             else if (amountReceived > 0) {
                 wait = false;
                 buffer.resize((size_t)amountReceived);
-                owner->NetworkConnectionMessageReceived(buffer);
+                messageReceivedDelegate(buffer);
             }
             else {
                 Close(false);
-                owner->NetworkConnectionBroken();
+                brokenDelegate();
                 break;
             }
             const auto outputQueueLength = platform->outputQueue.size();
@@ -211,7 +211,7 @@ namespace SystemAbstractions {
                     const auto wsaLastError = WSAGetLastError();
                     if (wsaLastError != WSAEWOULDBLOCK) {
                         Close(false);
-                        owner->NetworkConnectionBroken();
+                        brokenDelegate();
                         break;
                     }
                 }
@@ -226,7 +226,7 @@ namespace SystemAbstractions {
                 }
                 else {
                     Close(false);
-                    owner->NetworkConnectionBroken();
+                    brokenDelegate();
                     break;
                 }
             }

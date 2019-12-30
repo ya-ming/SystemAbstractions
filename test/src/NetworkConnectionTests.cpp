@@ -58,7 +58,6 @@ struct Packet {
  * This is used to receive callbacks from the unit under test.
  */
 struct Owner
-    :public SystemAbstractions::NetworkConnection::Owner
 {
     // Properties
 
@@ -214,7 +213,14 @@ struct Owner
         std::unique_lock<decltype(mutex)> lock(mutex);
         connections.push_back(newConnection);
         condition.notify_all();
-        (void)newConnection->Process(this);
+        (void)newConnection->Process(
+                [this](const std::vector<uint8_t>& message) {
+                NetworkConnectionMessageReceived(message);
+            },
+                [this] {
+                NetworkConnectionBroken();
+            }
+        );
     }
 
     /**
@@ -240,15 +246,25 @@ struct Owner
         condition.notify_all();
     }
 
-    // SystemAbstractions::NetworkConnection::Owner
-public:
-    virtual void NetworkConnectionMessageReceived(const std::vector<uint8_t>& message) override {
+    /**
+     * This is the callback issued whenever more data
+     * is received from the peer of the connection.
+     *
+     * @param[in] message
+     *     This contains the data received from
+     *     the peer of the connection.
+     */
+    void NetworkConnectionMessageReceived(const std::vector<uint8_t>& message) {
         std::unique_lock<decltype(mutex)> lock(mutex);
         streamReceived.insert(streamReceived.end(), message.begin(), message.end());
         condition.notify_all();
     }
 
-    virtual void NetworkConnectionBroken() override {
+    /**
+     * This is the callback issued whenever
+     * the connection is broken.
+     */
+    void NetworkConnectionBroken() {
         std::unique_lock<decltype(mutex)> lock(mutex);
         connectionBroken = true;
         condition.notify_all();
@@ -322,7 +338,14 @@ TEST(NetworkConnectionTests, SendingMessage) {
         ) {
         std::unique_lock<std::mutex> lock(callbackMutex);
         clients.push_back(newConnection);
-        ASSERT_TRUE(newConnection->Process(&serverConnectionOwner));
+        ASSERT_TRUE(newConnection->Process(
+            [&serverConnectionOwner](const std::vector<uint8_t>& message) {
+            serverConnectionOwner.NetworkConnectionMessageReceived(message);
+        },
+            [&serverConnectionOwner] {
+            serverConnectionOwner.NetworkConnectionBroken();
+        }
+        ));
         callbackCondition.notify_all();
     };
 
@@ -347,7 +370,14 @@ TEST(NetworkConnectionTests, SendingMessage) {
 
     SystemAbstractions::NetworkConnection client;
     ASSERT_TRUE(client.Connect(0x7F000001, server.GetBoundPort()));
-    ASSERT_TRUE(client.Process(&clientConnectionOwner));
+    ASSERT_TRUE(client.Process(
+        [&clientConnectionOwner](const std::vector<uint8_t>& message) {
+        clientConnectionOwner.NetworkConnectionMessageReceived(message);
+    },
+        [&clientConnectionOwner] {
+        clientConnectionOwner.NetworkConnectionBroken();
+    }
+    ));
     const std::string messageAsString("Hello, World!");
     const std::vector<uint8_t> messageAsVector(messageAsString.begin(), messageAsString.end());
     client.SendMessage(messageAsVector);
@@ -368,7 +398,14 @@ TEST(NetworkConnectionTests, ReceivingMessage) {
         ) {
         std::unique_lock<std::mutex> lock(callbackMutex);
         clients.push_back(newConnection);
-        ASSERT_TRUE(newConnection->Process(&serverConnectionOwner));
+        ASSERT_TRUE(newConnection->Process(
+            [&serverConnectionOwner](const std::vector<uint8_t>& message) {
+            serverConnectionOwner.NetworkConnectionMessageReceived(message);
+        },
+            [&serverConnectionOwner] {
+            serverConnectionOwner.NetworkConnectionBroken();
+        }
+        ));
         callbackCondition.notify_all();
     };
 
@@ -393,7 +430,14 @@ TEST(NetworkConnectionTests, ReceivingMessage) {
 
     SystemAbstractions::NetworkConnection client;
     ASSERT_TRUE(client.Connect(0x7F000001, server.GetBoundPort()));
-    ASSERT_TRUE(client.Process(&clientConnectionOwner));
+    ASSERT_TRUE(client.Process(
+        [&clientConnectionOwner ](const std::vector<uint8_t>& message) {
+        clientConnectionOwner.NetworkConnectionMessageReceived(message);
+    },
+        [&clientConnectionOwner] {
+        clientConnectionOwner.NetworkConnectionBroken();
+    }
+    ));
 
     const std::string messageAsString("Hello, World!");
     const std::vector<uint8_t> messageAsVector(messageAsString.begin(), messageAsString.end());
@@ -427,7 +471,14 @@ TEST(NetworkConnectionTests, Close) {
         ) {
         std::unique_lock<std::mutex> lock(callbackMutex);
         clients.push_back(newConnection);
-        ASSERT_TRUE(newConnection->Process(&serverConnectionOwner));
+        ASSERT_TRUE(newConnection->Process(
+            [&serverConnectionOwner](const std::vector<uint8_t>& message) {
+            serverConnectionOwner.NetworkConnectionMessageReceived(message);
+        },
+            [&serverConnectionOwner] {
+            serverConnectionOwner.NetworkConnectionBroken();
+        }
+        ));
         callbackCondition.notify_all();
     };
 
@@ -452,7 +503,14 @@ TEST(NetworkConnectionTests, Close) {
 
     SystemAbstractions::NetworkConnection client;
     ASSERT_TRUE(client.Connect(0x7F000001, server.GetBoundPort()));
-    ASSERT_TRUE(client.Process(&clientConnectionOwner));
+    ASSERT_TRUE(client.Process(
+        [&clientConnectionOwner](const std::vector<uint8_t>& message) {
+        clientConnectionOwner.NetworkConnectionMessageReceived(message);
+    },
+        [&clientConnectionOwner] {
+        clientConnectionOwner.NetworkConnectionBroken();
+    }
+    ));
 
     const std::string messageAsString("Hello, World!");
     const std::vector<uint8_t> messageAsVector(messageAsString.begin(), messageAsString.end());
