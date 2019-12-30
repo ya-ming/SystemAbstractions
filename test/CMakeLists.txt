@@ -8,6 +8,7 @@ set(Sources
     src/DiagnosticsContextTests.cpp
     src/DiagnosticsSenderTests.cpp
     src/DirectoryMonitorTests.cpp
+    src/DynamicLibraryTests.cpp
     src/FileTests.cpp
     src/NetworkConnectionTests.cpp
     src/NetworkEndpointTests.cpp
@@ -18,15 +19,21 @@ set(Sources
 add_executable(${This} ${Sources})
 
 set_target_properties(${This} PROPERTIES
-	FOLDER Tests
+    FOLDER Tests
 )
 
 target_link_libraries(${This} PUBLIC
-	gtest_main
-	SystemAbstractions
+    gtest_main
+    SystemAbstractions
+)
+
+add_subdirectory(MockDynamicLibrary)
+
+add_custom_command(TARGET ${This} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:MockDynamicLibrary> $<TARGET_FILE_DIR:${This}>
 )
 
 add_test(
-	NAME ${This}
-	COMMAND ${This}
+    NAME ${This}
+    COMMAND ${This}
 )
