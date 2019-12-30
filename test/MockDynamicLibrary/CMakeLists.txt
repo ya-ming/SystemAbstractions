@@ -12,6 +12,3 @@ add_library(${This} SHARED ${Sources})
 set_target_properties(${This} PROPERTIES
     FOLDER TestHelpers
 )
-
-target_link_libraries(${This} PUBLIC
-)
