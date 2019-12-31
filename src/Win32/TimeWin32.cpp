@@ -21,27 +21,28 @@ namespace SystemAbstractions {
     /**
      * This is the Win32-specific state for the Time class.
      */
-    struct TimeImpl {
+    struct Time::Impl {
         double scale = 0.0;
     };
 
     Time::Time()
-        : _impl(new TimeImpl())
+        : impl_(new Impl())
     {
     }
 
     Time::~Time() {
+
     }
 
     double Time::GetTime() {
-        if (_impl->scale == 0.0) {
+        if (impl_->scale == 0.0) {
             LARGE_INTEGER freq;
             (void)QueryPerformanceFrequency(&freq);
-            _impl->scale = 1.0 / (double)freq.QuadPart;
+            impl_->scale = 1.0 / (double)freq.QuadPart;
         }
         LARGE_INTEGER now;
         (void)QueryPerformanceCounter(&now);
-        return (double)now.QuadPart * _impl->scale;
+        return (double)now.QuadPart * impl_->scale;
     }
 
     struct tm Time::localtime(time_t time) {
