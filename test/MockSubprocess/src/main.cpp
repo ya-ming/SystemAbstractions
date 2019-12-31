@@ -29,14 +29,13 @@ namespace {
 }
 
 int main(int argc, char* argv[]) {
-    SystemAbstractions::Subprocess::Owner owner;
     SystemAbstractions::Subprocess parent;
     std::vector<std::string> args;
     for (int i = 1; i < argc; ++i) {
         args.push_back(argv[i]);
     }
 
-    if (!parent.ContactParent(args, &owner)) {
+    if (!parent.ContactParent(args)) {
         return EXIT_FAILURE;
     }
 

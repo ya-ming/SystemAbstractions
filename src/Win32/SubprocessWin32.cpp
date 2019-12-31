@@ -40,7 +40,7 @@ namespace SystemAbstractions {
         /**
          * @todo Needs documentation
          */
-        Subprocess::Owner* owner;
+        Subprocess::Owner* owner = nullptr;
 
         /**
          * @todo Needs documentation
@@ -220,11 +220,7 @@ namespace SystemAbstractions {
         return true;
     }
 
-    bool Subprocess::ContactParent(
-        std::vector< std::string >& args,
-        Owner* owner
-    ) {
-        _impl->owner = owner;
+    bool Subprocess::ContactParent(std::vector< std::string >& args) {
         if (
             (args.size() >= 2)
             && (args[0] == "child")
