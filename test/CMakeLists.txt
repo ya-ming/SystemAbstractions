@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.8)
 set(This SystemAbstractionsTests)
 
 set(Sources
+    src/ClipboardTests.cpp
     src/DiagnosticsStreamReporterTests.cpp
     src/DiagnosticsContextTests.cpp
     src/DiagnosticsSenderTests.cpp
@@ -22,6 +23,10 @@ add_executable(${This} ${Sources})
 set_target_properties(${This} PROPERTIES
     FOLDER Tests
 )
+
+target_include_directories(${This} PRIVATE ..)
+
+target_compile_definitions(${This} PRIVATE CLIPBOARD_REVEAL_OS_API)
 
 target_link_libraries(${This} PUBLIC
     gtest_main
