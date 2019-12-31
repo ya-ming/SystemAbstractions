@@ -8,7 +8,7 @@
  */
 
 #include <SystemAbstractions/NetworkConnection.hpp>
-#include <SystemAbstractions/NetworkConnectionImpl.hpp>
+#include "NetworkConnectionImpl.hpp"
 
 #include <inttypes.h>
 

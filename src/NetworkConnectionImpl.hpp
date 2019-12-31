@@ -10,8 +10,8 @@
  * Copyright (c) 2016 by Richard Walters
  */
 
-#include "DiagnosticsSender.hpp"
-#include "NetworkConnection.hpp"
+#include <SystemAbstractions/DiagnosticsSender.hpp>
+#include <SystemAbstractions/NetworkConnection.hpp>
 
 #include <memory>
 #include <stdint.h>
